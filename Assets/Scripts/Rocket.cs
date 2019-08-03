@@ -6,7 +6,7 @@ namespace PB.Control
     public class Rocket : MonoBehaviour
     {
         [SerializeField] float mainEngineThrust = 1000f;
-        [SerializeField] float rcsThrust = 500f;
+        [SerializeField] float rcsThrust = 250f;
         [SerializeField] AudioClip[] soundClips;
         
         static bool collisionsDontKill = false;
@@ -78,11 +78,13 @@ namespace PB.Control
         void RotateClockwise()
         {
             Debug.Log("Rotate Right");
+            transform.Rotate(new Vector3(0f, 0f, -rcsThrust) * Time.deltaTime);
         }
 
         void RotateCounterClockwise()
         {
             Debug.Log("Rotate Left");
+            transform.Rotate(new Vector3(0f, 0f, rcsThrust) * Time.deltaTime);
         }
 
         private void OnCollisionEnter(Collision other) {

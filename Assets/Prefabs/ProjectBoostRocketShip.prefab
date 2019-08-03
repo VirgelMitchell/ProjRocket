@@ -319,7 +319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainEngineThrust: 1000
-  rcsThrust: 10
+  rcsThrust: 250
   soundClips: []
 --- !u!1 &5960326319110014548
 GameObject:
