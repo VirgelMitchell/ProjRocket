@@ -101,6 +101,11 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Finish
       objectReference: {fileID: 0}
+    - target: {fileID: 6111165501067992072, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f49e77449bb41084b847ec64c24aaee4, type: 2}
     - target: {fileID: 6387313955616355392, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9,
         type: 3}
       propertyPath: m_LocalPosition.x

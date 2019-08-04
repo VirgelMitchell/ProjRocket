@@ -8,7 +8,7 @@ namespace PB.Core
         [SerializeField] float timeForLevel = 60f;
         [SerializeField] float fuelForLevel = 60f;
         [SerializeField] float lifeSupportForLevel = 60f;
-        [SerializeField] Vector3 levelGravity;
+        [SerializeField][Range(0f,4f)] float levelGravity = 1;
 
         bool hasStarted;
         bool levelComplete;
@@ -60,7 +60,7 @@ namespace PB.Core
 
         private void Start() {
             counters = new Counters();
-            Physics.gravity = levelGravity;
+            Physics.gravity = levelGravity * new Vector3(0f, -9.812f, 0f);
             Rocket player = GameObject.FindWithTag("Player").GetComponent<Rocket>();
             hasStarted = false;
             counters.SetCounters(timeForLevel, fuelForLevel, lifeSupportForLevel);
@@ -74,6 +74,7 @@ namespace PB.Core
         }
 
         public bool GetHasStarted()         { return hasStarted; }
+        public bool GetLevelComplete()      { return levelComplete; }
         public void ToggleHasStarted()      { hasStarted = !hasStarted; }
         public void ToggleLevelComplete()   { levelComplete = !levelComplete; }
 

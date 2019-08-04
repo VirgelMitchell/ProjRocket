@@ -1,16 +1,18 @@
-﻿using PB.Core;
+﻿using System.Collections;
+using PB.Core;
 using UnityEngine;
 
 namespace PB.Control
 {
     public class Rocket : MonoBehaviour
     {
-        [SerializeField] float mainEngineThrust = 1000f;
+        [SerializeField] float mainEngineThrust = 3;
         [SerializeField] float rcsThrust = 250f;
         [SerializeField] AudioClip[] soundClips;
         
         static bool collisionsDontKill = false;
-        
+        const float earthGrav = 9.812f;
+
         State state;
         Rigidbody rocketRB;
         Level level;
@@ -66,7 +68,8 @@ namespace PB.Control
 
         void ActivateMainEngine()
         {
-            rocketRB.AddRelativeForce(new Vector3(0f,mainEngineThrust,0f) * Time.deltaTime);
+            float thrust = mainEngineThrust * earthGrav;
+            rocketRB.AddRelativeForce(new Vector3(0f, thrust, 0f) * Time.deltaTime);
             Debug.Log("Thrusting");
             if (!audioSource.isPlaying)
             {
@@ -78,13 +81,15 @@ namespace PB.Control
         void RotateClockwise()
         {
             Debug.Log("Rotate Right");
-            transform.Rotate(new Vector3(0f, 0f, -rcsThrust) * Time.deltaTime);
+            rocketRB.angularVelocity = rocketRB.angularVelocity * 0f; 
+            transform.Rotate(new Vector3(0f, 0f, rcsThrust) * Time.deltaTime);
         }
 
         void RotateCounterClockwise()
         {
             Debug.Log("Rotate Left");
-            transform.Rotate(new Vector3(0f, 0f, rcsThrust) * Time.deltaTime);
+            rocketRB.angularVelocity = rocketRB.angularVelocity * 0f;
+            transform.Rotate(new Vector3(0f, 0f, -rcsThrust) * Time.deltaTime);
         }
 
         private void OnCollisionEnter(Collision other) {
