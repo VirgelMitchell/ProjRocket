@@ -413,8 +413,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainEngineThrust: 125
   rcsThrust: 200
+  loadWaitTime: 1.5
   soundClips:
-  - {fileID: 8300000, guid: 97636dd920550604c900e0e228a5db83, type: 3}
+  - {fileID: 8300000, guid: 7aed25bfff95d5c4dacb840cead33d16, type: 3}
   - {fileID: 8300000, guid: 79daccefffedcd54faea3fd2dfc4031f, type: 3}
   - {fileID: 8300000, guid: 359148c4f37f29f4d82297ab76b06598, type: 3}
   - {fileID: 8300000, guid: 64a16851211df6c4daa198754e69f0b6, type: 3}

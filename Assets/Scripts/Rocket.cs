@@ -39,6 +39,7 @@ namespace PB.Control
     {
         [SerializeField] float mainEngineThrust = 3;
         [SerializeField] float rcsThrust = 250f;
+        [SerializeField] float loadWaitTime = 1.5f;
         
         // [0] = Main Engine, [1] = Level Complete, [2] = Death, [3] = Bonus Item
         [SerializeField] AudioClip[] soundClips;
@@ -60,19 +61,24 @@ namespace PB.Control
 
         void Start()
         {
+            AssingArrays();
             audioSource = GetComponent<AudioSource>();
-            sounds.AssignSounds(soundClips);
-            particles.AssignParticles(particleSystems);
             rocketRB = GetComponent<Rigidbody>();
             level = GameObject.FindWithTag("Level").GetComponent<Level>();
             state = State.Alive;
+        }
+
+        private void AssingArrays()
+        {
+            sounds.AssignSounds(soundClips);
+            particles.AssignParticles(particleSystems);
         }
 
         void Update()
         {
             if  (!level.GetHasStarted() && Input.GetKeyDown(KeyCode.Space))
             {
-                level.ToggleHasStarted();
+                level.ToggleHasStarted();  // TODO track bug
             }
 
             GetInput(); 
@@ -95,79 +101,118 @@ namespace PB.Control
         void ActivateMainEngine()
         {
             float thrust = mainEngineThrust * earthGrav;
+            
             rocketRB.AddRelativeForce(new Vector3(0f, thrust, 0f) * Time.deltaTime);
-            Debug.Log("Thrusting");
-            if (!audioSource.isPlaying)
-            {
-                audioSource.volume = 0.5f;
-                audioSource.PlayOneShot(sounds.MainEngine);
-            }
-        }
-
-        private void StopEngineSound()
-        {
-            audioSource.Stop();
-            audioSource.clip = null;
-            audioSource.volume = 1f;
+            if (!audioSource.isPlaying) { PlayEngineSound(); }
         }
 
         void RotateClockwise()
         {
-            Debug.Log("Rotate Right");
             rocketRB.angularVelocity = rocketRB.angularVelocity * 0f; 
             transform.Rotate(new Vector3(0f, 0f, rcsThrust) * Time.deltaTime);
         }
 
         void RotateCounterClockwise()
         {
-            Debug.Log("Rotate Left");
             rocketRB.angularVelocity = rocketRB.angularVelocity * 0f;
             transform.Rotate(new Vector3(0f, 0f, -rcsThrust) * Time.deltaTime);
         }
 
-        private void OnCollisionEnter(Collision other) {
-            if(state == State.Alive)
+        private void OnCollisionEnter(Collision other)
+        {
+            if (state != State.Alive) { return; }
+            switch(other.gameObject.tag)
             {
-                switch(other.gameObject.tag)
-                {
-                    case "Finish":
-                        state = State.Trancending;
-                        PlayFinishSound();
-                        level.ToggleLevelComplete();
-                        break;
-                    case "Friendly":
-                        break;
-                    default:
-                        state = State.Dieing;
-                        print("You have Crashed and Killed everyone Aboard");
-                        break;
-                }
+                case "Finish":
+                    FinishRoutine();
+                    break;
+                case "Friendly":
+                    break;
+                default:
+                    if (collisionsDontKill) { return; }
+                    state = State.Dieing;
+                    LoseRoutine();
+                    break;
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (state == State.Alive)
+            float boundryWaitTime = 9f;
+            
+            if (state != State.Alive) { return; }
+            switch (other.gameObject.tag)
             {
-                switch (other.gameObject.tag)
-                {
-                    case "BonusItem":
-                        PlayBonusSound();
-                        BonusItem bonus = other.gameObject.GetComponent<BonusItem>();
-                        level.AddToCounters(bonus.GetBonus().x, bonus.GetBonus().y, bonus.GetBonus().z);
-                        print(other.gameObject.name + " collected.");
-                        break;
-                    default:
-                        Physics.gravity = new Vector3(0f, 0f, 50f);
-                        rocketRB.AddRelativeTorque(0f, 0f, 500f);
-                        state = State.Dieing;
-                        Invoke("LoseRoutine", 10f);
-                        break;
-                }
+                case "BonusItem":
+                    PlayBonusSound();   // TODO: Does not Play Consistantly
+                    BonusItem bonus = other.gameObject.GetComponent<BonusItem>();
+                    level.AddToCounters(bonus.GetBonus().x, bonus.GetBonus().y, bonus.GetBonus().z);
+                    print(other.gameObject.name + " collected.");
+                    Destroy(other.gameObject);
+                    break;
+                default:
+                    AtBoundryChangePhysics();
+                    state = State.Dieing;
+                    Invoke("LoseRoutine", boundryWaitTime);
+                    //Invoke(ParticleSystem.PlayOneShot(particles.Explosion), boundryWaitTime);
+                    print("Out of Bounds!");
+                    break;
             }
         }
 
-        private void PlayBonusSound()
+        void LoadNextLevel()
+        {
+            int currentScene = SceneManager.GetActiveScene().buildIndex;
+            Debug.Log("currentScene is: " + currentScene);
+            if ((currentScene+1) >= SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(0);
+            }
+            else
+            {
+                SceneManager.LoadScene(currentScene + 1);
+            }
+        }
+
+        void LoadStart() { SceneManager.LoadScene(0); }
+
+        private void FinishRoutine()
+        {
+            state = State.Trancending;
+            PlayFinishSound();
+            level.ToggleLevelComplete();  // Track possible bug
+            Invoke("LoadNextLevel", loadWaitTime);
+        }
+
+        private void AtBoundryChangePhysics()
+        {
+            rocketRB.constraints = RigidbodyConstraints.None;
+            Physics.gravity = new Vector3(0f, 0f, -5f);
+            rocketRB.AddRelativeTorque(0f, 0f, 1000f);
+        }
+
+        void LoseRoutine()
+        {
+            audioSource.Stop();
+            Invoke("LoadStart", loadWaitTime);
+        }
+
+        private void PlayEngineSound()
+        {
+            audioSource.volume = 0.3f;
+            audioSource.PlayOneShot(sounds.MainEngine);
+        }
+
+        private void StopEngineSound()
+        {
+            if(audioSource.clip = sounds.MainEngine)
+            {
+                audioSource.Stop();
+                audioSource.volume = 1f;
+            }
+        }
+
+        private void PlayBonusSound()   // TODO: Does not Play Consistantly
         {
             StopEngineSound();
             audioSource.PlayOneShot(sounds.BonusItem);
@@ -177,18 +222,6 @@ namespace PB.Control
         {
             StopEngineSound();
             audioSource.PlayOneShot(sounds.LevelComplete);
-        }
-
-        void LoadNextLevel()
-        {
-            //Scene currentScene = Scene.buildIndex;
-            //SceneManager.LoadScene(currentScene + 1);
-        }
-
-        void LoseRoutine()
-        {
-            audioSource.Stop();
-            SceneManager.LoadScene(0);
         }
 
         void CheckDebugKeys()
