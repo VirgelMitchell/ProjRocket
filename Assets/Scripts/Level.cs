@@ -68,9 +68,9 @@ namespace PB.Core
 
         private void Update()
         {
-            if(hasStarted) { counters.UpdateCounters(); }
-            if(counters.CountersExpired()) { print("Game Over"); }
-            if(levelComplete) { print("Congratulations!!\nLevel Complete"); }
+            // if(hasStarted) { counters.UpdateCounters(); }
+            // if(counters.CountersExpired()) { print("Game Over"); }
+            // if(levelComplete) { print("Congratulations!!\nLevel Complete"); }
         }
 
         public bool GetHasStarted()         { return hasStarted; }

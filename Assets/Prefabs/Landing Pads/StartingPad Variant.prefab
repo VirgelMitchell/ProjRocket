@@ -12,11 +12,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: StartingPad Variant
       objectReference: {fileID: 0}
-    - target: {fileID: 6111165501067992072, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9,
+    - target: {fileID: 1224433689011971152, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9,
         type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 2320bafc55e51db43a85d35d6de97847, type: 2}
+      propertyPath: m_TagString
+      value: Friendly
+      objectReference: {fileID: 0}
     - target: {fileID: 6387313955616355392, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -72,6 +72,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6111165501067992072, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2320bafc55e51db43a85d35d6de97847, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2e3b372dc9e6e6a4fb78fbf66a5614e9, type: 3}
 --- !u!4 &4640816060982478605 stripped
