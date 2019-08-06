@@ -7,16 +7,16 @@ namespace PB.Control
 {
     struct Sounds
     {
-        public AudioClip MainEngine;
+        public AudioClip Thrust;
         public AudioClip LevelComplete;
-        public AudioClip Death;
+        public AudioClip Explosion;
         public AudioClip BonusItem;
 
         public void AssignSounds(AudioClip[] sounds)
         {
-            MainEngine = sounds[0];
+            Thrust = sounds[0];
             LevelComplete = sounds[1];
-            Death = sounds[2];
+            Explosion = sounds[2];
             BonusItem = sounds[3];
         }
     }
@@ -39,7 +39,7 @@ namespace PB.Control
     {
         [SerializeField] float mainEngineThrust = 3;
         [SerializeField] float rcsThrust = 250f;
-        [SerializeField] float loadWaitTime = 1.5f;
+        [SerializeField] float loadWaitTime = 0.75f;
         
         // [0] = Main Engine, [1] = Level Complete, [2] = Death, [3] = Bonus Item
         [SerializeField] AudioClip[] soundClips;
@@ -89,7 +89,7 @@ namespace PB.Control
             if(state == State.Alive)
             {
                 if      (Input.GetKey("space")) { ActivateMainEngine(); }
-                else                            { StopEngineSound(); }
+                else                            { StopMainEngines(); }
 
                 if      (Input.GetKey("left"))  { RotateClockwise(); }
                 else if (Input.GetKey("right")) { RotateCounterClockwise(); }
@@ -104,6 +104,7 @@ namespace PB.Control
             
             rocketRB.AddRelativeForce(new Vector3(0f, thrust, 0f) * Time.deltaTime);
             if (!audioSource.isPlaying) { PlayEngineSound(); }
+            particles.Thrust.Play();
         }
 
         void RotateClockwise()
@@ -147,14 +148,12 @@ namespace PB.Control
                     PlayBonusSound();   // TODO: Does not Play Consistantly
                     BonusItem bonus = other.gameObject.GetComponent<BonusItem>();
                     level.AddToCounters(bonus.GetBonus().x, bonus.GetBonus().y, bonus.GetBonus().z);
-                    print(other.gameObject.name + " collected.");
                     Destroy(other.gameObject);
                     break;
                 default:
                     AtBoundryChangePhysics();
                     state = State.Dieing;
                     Invoke("LoseRoutine", boundryWaitTime);
-                    //Invoke(ParticleSystem.PlayOneShot(particles.Explosion), boundryWaitTime);
                     print("Out of Bounds!");
                     break;
             }
@@ -180,6 +179,7 @@ namespace PB.Control
         {
             state = State.Trancending;
             PlayFinishSound();
+            particles.LevelComplete.Play();
             level.ToggleLevelComplete();  // Track possible bug
             Invoke("LoadNextLevel", loadWaitTime);
         }
@@ -188,40 +188,50 @@ namespace PB.Control
         {
             rocketRB.constraints = RigidbodyConstraints.None;
             Physics.gravity = new Vector3(0f, 0f, -5f);
-            rocketRB.AddRelativeTorque(0f, 0f, 1000f);
+            rocketRB.AddRelativeTorque(-75f, 100f, 1000f);
         }
 
         void LoseRoutine()
         {
             audioSource.Stop();
+            PlayExplosion();
+            DestroyShip();
             Invoke("LoadStart", loadWaitTime);
         }
 
         private void PlayEngineSound()
         {
             audioSource.volume = 0.3f;
-            audioSource.PlayOneShot(sounds.MainEngine);
+            audioSource.PlayOneShot(sounds.Thrust);
         }
 
-        private void StopEngineSound()
+        private void StopMainEngines()
         {
-            if(audioSource.clip = sounds.MainEngine)
-            {
-                audioSource.Stop();
-                audioSource.volume = 1f;
-            }
+            audioSource.Stop();
+            audioSource.volume = 1f;
+            particles.Thrust.Stop();
         }
 
         private void PlayBonusSound()   // TODO: Does not Play Consistantly
         {
-            StopEngineSound();
             audioSource.PlayOneShot(sounds.BonusItem);
         }
 
         private void PlayFinishSound()
         {
-            StopEngineSound();
+            StopMainEngines();
             audioSource.PlayOneShot(sounds.LevelComplete);
+        }
+
+        void PlayExplosion()
+        {
+            particles.Explosion.Play();
+            audioSource.PlayOneShot(sounds.Explosion);
+        }
+
+        void DestroyShip()
+        {
+            // Destroy the ship without losing the game object
         }
 
         void CheckDebugKeys()
