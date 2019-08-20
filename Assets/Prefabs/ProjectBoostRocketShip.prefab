@@ -417,15 +417,15 @@ MonoBehaviour:
   mainEngineThrust: 125
   rcsThrust: 200
   loadWaitTime: 0.75
-  soundClips:
-  - {fileID: 8300000, guid: 7aed25bfff95d5c4dacb840cead33d16, type: 3}
-  - {fileID: 8300000, guid: 79daccefffedcd54faea3fd2dfc4031f, type: 3}
-  - {fileID: 8300000, guid: 359148c4f37f29f4d82297ab76b06598, type: 3}
-  - {fileID: 8300000, guid: 64a16851211df6c4daa198754e69f0b6, type: 3}
-  particleSystems:
-  - {fileID: 3262904459384203162}
-  - {fileID: 6389618187506966576}
-  - {fileID: 727723039743756512}
+  sounds:
+    Thrust: {fileID: 8300000, guid: 7aed25bfff95d5c4dacb840cead33d16, type: 3}
+    LevelComplete: {fileID: 8300000, guid: 79daccefffedcd54faea3fd2dfc4031f, type: 3}
+    Explosion: {fileID: 8300000, guid: 359148c4f37f29f4d82297ab76b06598, type: 3}
+    BonusItem: {fileID: 8300000, guid: 64a16851211df6c4daa198754e69f0b6, type: 3}
+  particles:
+    Thrust: {fileID: 3262904459384203162}
+    LevelComplete: {fileID: 6389618187506966576}
+    Explosion: {fileID: 727723039743756512}
 --- !u!1 &5960326319110014548
 GameObject:
   m_ObjectHideFlags: 0

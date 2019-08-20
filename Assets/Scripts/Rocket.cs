@@ -1,38 +1,24 @@
-﻿using System.Collections;
-using PB.Core;
+﻿using PB.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace PB.Control
 {
-    struct Sounds
+    [System.Serializable]
+    public struct Sounds
     {
         public AudioClip Thrust;
         public AudioClip LevelComplete;
         public AudioClip Explosion;
         public AudioClip BonusItem;
-
-        public void AssignSounds(AudioClip[] sounds)
-        {
-            Thrust = sounds[0];
-            LevelComplete = sounds[1];
-            Explosion = sounds[2];
-            BonusItem = sounds[3];
-        }
     }
 
-    struct Particles
+    [System.Serializable]
+    public struct Particles
     {
         public ParticleSystem Thrust;
         public ParticleSystem LevelComplete;
         public ParticleSystem Explosion;
-
-        public void AssignParticles(ParticleSystem[] item)
-        {
-            Thrust = item[0];
-            LevelComplete = item[1];
-            Explosion = item[2];
-        }
     }
 
     public class Rocket : MonoBehaviour
@@ -41,11 +27,8 @@ namespace PB.Control
         [SerializeField] float rcsThrust = 250f;
         [SerializeField] float loadWaitTime = 0.75f;
         
-        // [0] = Main Engine, [1] = Level Complete, [2] = Death, [3] = Bonus Item
-        [SerializeField] AudioClip[] soundClips;
-
-        // [0] = Thrust, [1] = Level Complete, [2] = Explosion
-        [SerializeField] ParticleSystem[] particleSystems;
+        [SerializeField] Sounds sounds;
+        [SerializeField] Particles particles;
 
         static bool collisionsDontKill = false;
         const float earthGrav = 9.812f;
@@ -54,24 +37,15 @@ namespace PB.Control
         Rigidbody rocketRB;
         Level level;
         AudioSource audioSource;
-        Sounds sounds;
-        Particles particles;
 
         enum State {Alive, Dieing, Trancending};
 
         void Start()
         {
-            AssingArrays();
             audioSource = GetComponent<AudioSource>();
             rocketRB = GetComponent<Rigidbody>();
             level = GameObject.FindWithTag("Level").GetComponent<Level>();
             state = State.Alive;
-        }
-
-        private void AssingArrays()
-        {
-            sounds.AssignSounds(soundClips);
-            particles.AssignParticles(particleSystems);
         }
 
         void Update()
@@ -162,7 +136,6 @@ namespace PB.Control
         void LoadNextLevel()
         {
             int currentScene = SceneManager.GetActiveScene().buildIndex;
-            Debug.Log("currentScene is: " + currentScene);
             if ((currentScene+1) >= SceneManager.sceneCountInBuildSettings)
             {
                 SceneManager.LoadScene(0);
@@ -207,9 +180,12 @@ namespace PB.Control
 
         private void StopMainEngines()
         {
-            audioSource.Stop();
-            audioSource.volume = 1f;
-            particles.Thrust.Stop();
+            if(audioSource.clip == sounds.Thrust)
+            {
+                audioSource.Stop();
+                audioSource.volume = 1f;
+                particles.Thrust.Stop();
+            }
         }
 
         private void PlayBonusSound()   // TODO: Does not Play Consistantly
@@ -240,5 +216,4 @@ namespace PB.Control
             if  (Input.GetKeyDown(KeyCode.F2))  { collisionsDontKill = !collisionsDontKill; }
         }
     }
-
 }
